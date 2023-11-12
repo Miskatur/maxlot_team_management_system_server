@@ -1,6 +1,7 @@
-const Team = require("../models/team.model");
+import { Request, Response } from 'express';
+import Team from '../models/team.model';
 
-const getAllTeams = async (req, res) => {
+export const getAllTeams = async (req: Request, res: Response): Promise<void> => {
     try {
         const teams = await Team.find().populate('members', 'username');
         res.status(200).json({
@@ -8,24 +9,20 @@ const getAllTeams = async (req, res) => {
             teams: teams,
             message: 'Teams retrieved successfully',
         });
-    } catch (err) {
+        return
+    } catch (err: any) {
         res.status(400).json({
             status: 400,
             error: err.message,
         });
+        return
     }
 };
 
-const createTeam = async (req, res) => {
-    const { role } = req;
+export const createTeam = async (req: Request, res: Response): Promise<void> => {
     const { name, category, description } = req.body;
     try {
-        if (role === 'teamMember') {
-            return res.status(401).json({
-                status: 401,
-                message: 'You are not allowed to create team.',
-            });
-        }
+
         const newTeam = new Team({ name, category, description });
         newTeam.save()
         res.status(200).json({
@@ -33,16 +30,18 @@ const createTeam = async (req, res) => {
             team: newTeam,
             message: 'A New Team Created',
         });
-    } catch (error) {
+
+    } catch (error: any) {
         res.status(400).json({
             status: 400,
             error: error.message,
         });
+
     }
 
 }
 
-const getATeamInfo = async (req, res) => {
+export const getATeamInfo = async (req: Request, res: Response): Promise<void> => {
     const { teamId } = req.params;
     try {
         const teamInfo = await Team.findById(teamId).populate({
@@ -53,15 +52,17 @@ const getATeamInfo = async (req, res) => {
             status: 200,
             data: teamInfo
         })
-    } catch (err) {
+
+    } catch (err: any) {
         res.status(400).json({
             status: 400,
             error: err.message,
         });
+
     }
 }
 
-const updateTeamInfo = async (req, res) => {
+export const updateTeamInfo = async (req: Request, res: Response): Promise<void> => {
     const { name, category, description } = req.body;
     const { teamId } = req.params;
 
@@ -72,7 +73,7 @@ const updateTeamInfo = async (req, res) => {
             team: updatedTeam,
             message: 'Team updated successfully',
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(400).json({
             status: 400,
             error: err.message,
@@ -80,7 +81,7 @@ const updateTeamInfo = async (req, res) => {
     }
 }
 
-const assignMemberToTeam = async (req, res) => {
+export const assignMemberToTeam = async (req: Request, res: Response): Promise<void> => {
     const { teamId, userId } = req.params;
 
     try {
@@ -90,11 +91,12 @@ const assignMemberToTeam = async (req, res) => {
             select: '-password',
         });
 
-        if (teamInfoBeforeUpdate.members.some(member => member._id.toString() === userId)) {
-            return res.status(400).json({
+        if (teamInfoBeforeUpdate?.members?.some(member => member._id.toString() === userId)) {
+            res.status(400).json({
                 status: 400,
                 error: 'User is already a member of the team',
             });
+            return
         }
 
         await Team.findByIdAndUpdate(
@@ -107,14 +109,14 @@ const assignMemberToTeam = async (req, res) => {
             path: 'members',
             select: '-password',
         });
-        const lastMember = teamInfo.members[teamInfo.members.length - 1];
+        const lastMember = teamInfo?.members[teamInfo?.members?.length - 1];
 
         res.status(200).json({
             status: 200,
             team: lastMember,
             message: 'Team member assigned successfully',
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(400).json({
             status: 400,
             error: err.message,
@@ -122,7 +124,7 @@ const assignMemberToTeam = async (req, res) => {
     }
 };
 
-const unassignMemberFromTeam = async (req, res) => {
+export const unassignMemberFromTeam = async (req: Request, res: Response): Promise<void> => {
     const { teamId, userId } = req.params;
 
     try {
@@ -137,19 +139,10 @@ const unassignMemberFromTeam = async (req, res) => {
             team: updatedTeam,
             message: 'Team member unassigned successfully',
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(400).json({
             status: 400,
             error: err.message,
         });
     }
 };
-
-module.exports = {
-    getAllTeams,
-    createTeam,
-    getATeamInfo,
-    updateTeamInfo,
-    assignMemberToTeam,
-    unassignMemberFromTeam
-}

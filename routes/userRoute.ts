@@ -1,7 +1,8 @@
 const express = require("express");
-const { getAllUser, createUser, loginUser, deleteUser } = require("../controller/userController");
-const { validateToken } = require("../utils/authTokenUtils");
 
+const { validateToken } = require("../utils/authTokenUtils");
+import { Request, Response } from 'express';
+import { createUser, deleteUser, getAllUser, loginUser } from '../controller/userController';
 const router = express.Router();
 
 router.get('/', getAllUser)
@@ -10,4 +11,4 @@ router.post('/register-user', createUser)
 router.delete('/delete-user/:id', deleteUser)
 
 
-module.exports = router;
+export default router

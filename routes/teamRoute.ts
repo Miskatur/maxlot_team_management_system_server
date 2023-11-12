@@ -1,7 +1,6 @@
-const express = require("express");
-const { getAllTeams, createTeam, assignMemberToTeam, unassignMemberFromTeam, updateTeamInfo, getATeamInfo } = require("../controller/teamController");
-const { validateToken } = require("../utils/authTokenUtils");
-
+import express from 'express';
+import { assignMemberToTeam, createTeam, getATeamInfo, getAllTeams, unassignMemberFromTeam, updateTeamInfo } from "../controller/teamController";
+import { validateToken } from "../utils/authTokenUtils";
 const router = express.Router();
 
 router.get('/allTeam', validateToken, getAllTeams)
@@ -11,4 +10,4 @@ router.put('/update-team/:teamId', updateTeamInfo)
 router.put('/assign/:teamId/:userId', assignMemberToTeam)
 router.put('/unassign/:teamId/:userId', unassignMemberFromTeam)
 
-module.exports = router;
+export default router

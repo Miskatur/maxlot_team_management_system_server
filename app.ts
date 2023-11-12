@@ -1,13 +1,15 @@
-const express = require("express");
-const cors = require("cors");
-const productRoute = require('./routes/productRoute')
-const userRoute = require('./routes/userRoute')
-const teamRoute = require('./routes/teamRoute')
-const messageRoute = require('./routes/messageRoute')
-const cookieParser = require('cookie-parser')
-const helmet = require('helmet');
-const http = require('http');
-// const socketIo = require('socket.io');
+import express from "express";
+import cors from "cors";
+// import productRoute from './routes/productRoute';
+import userRoute from './routes/userRoute';
+import teamRoute from './routes/teamRoute';
+import { RequestHandler } from 'express';
+
+// import messageRoute from './routes/messageRoute';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import http from 'http';
+// import socketIo from 'socket.io';
 const corsOptions = {
     origin: ["http://localhost:5173", "http://localhost:3000"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -17,6 +19,7 @@ const corsOptions = {
 
 // middleware
 
+// middleware
 const app = express();
 
 app.use(helmet());
@@ -36,16 +39,18 @@ const server = http.createServer(app);
 
 
 // Api route 
-app.use('/api/v1/products', productRoute)
+// app.use('/api/v1/products', productRoute)
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/team', teamRoute)
 // app.use('/api/v1/message', messageRoute)
 
 
 // checking if any error or api issue 
-app.get('/', (req, res) => {
+const welcomeHandler: RequestHandler = (req, res) => {
     res.status(200).json({ status: 200, message: "Welcome to the app!" });
-});
+};
+
+app.get('/', welcomeHandler);
 
 // io.on('connection', (socket) => {
 //     socket.emit('connected', 'Socket connected')
@@ -60,4 +65,5 @@ app.get('/', (req, res) => {
 //     });
 // });
 
-module.exports = { app, server };
+export default app;
+

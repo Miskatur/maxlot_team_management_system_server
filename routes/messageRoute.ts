@@ -5,4 +5,4 @@
 
 // router.post('/send', sendMessages);
 
-// module.exports = router;
+// export default router;

@@ -1,8 +1,9 @@
-const User = require("../models/user.model");
-const { createJWT } = require("../utils/authTokenUtils");
-const bcrypt = require('bcrypt');
+import User from "../models/user.model";
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt'
+import { authTokenUtils } from "../utils/authTokenUtils";
 
-const getAllUser = async (req, res) => {
+export const getAllUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const allUser = await User.find().select("-password")
 
@@ -10,38 +11,42 @@ const getAllUser = async (req, res) => {
             status: 200,
             users: allUser
         })
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ status: 400, error: error.message });
     }
 }
 
-const createUser = async (req, res) => {
+export const createUser = async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
     const saltRounds = 10;
 
     try {
         const ifUserNameAvailable = await User.findOne({ username: username })
         if (ifUserNameAvailable) {
-            return res.status(400).json({ status: 400, message: 'Username already existed.' });
+            res.status(400).json({
+                status: 400, message: 'Username already existed.'
+            });
+            return;
         }
         if (password.length < 8) {
-            return res.status(400).json({ status: 400, message: 'Password is too short. Provide 8 characters at least.' });
+            res.status(400).json({ status: 400, message: 'Password is too short. Provide 8 characters at least.' });
+            return;
         }
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const newUser = new User({ username, password: hashedPassword });
 
         await newUser.save();
-        res.json({
+        res.status(200).json({
             status: 200,
             message: 'User registered successfully',
             user: newUser
         });
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
 }
 
-const loginUser = async (req, res) => {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
 
     try {
@@ -49,18 +54,20 @@ const loginUser = async (req, res) => {
         const user = await User.findOne({ username: username });
 
         if (!user) {
-            return res.status(401).json({ status: 401, error: 'Invalid username' });
+            res.status(401).json({ status: 401, error: 'Invalid username' });
+            return;
         }
 
         // Check password
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({ status: 401, error: 'Invalid password' });
+            res.status(401).json({ status: 401, error: 'Invalid password' });
+            return;
         }
         if (isMatch) {
-            const token = await createJWT(user);
-            return res.status(200).json({
+            const token = await authTokenUtils.createJWT(user);
+            res.status(200).json({
                 status: 200,
                 message: 'Logged in successfully.',
                 data: {
@@ -70,45 +77,42 @@ const loginUser = async (req, res) => {
                     token: token
                 }
             })
+            return;
         }
 
         // Generate and send a JWT token upon successful authentication
         // const token = jwt.sign({ id: user._id }, secretKey, { expiresIn: '1h' });
         // res.json({ token });
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
 }
 
-const deleteUser = async (req, res) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id
     try {
         const user = await User.findById(id)
         if (user?.role === 'admin') {
-            return res.status(401).json({
+            res.status(401).json({
                 status: 401,
                 message: 'You can not delete an admin'
             })
+            return
         }
         const removedUser = await User.findByIdAndDelete(id)
-        return res.status(200).json({
+        res.status(200).json({
             status: 200,
             userId: removedUser?._id,
             message: 'User deleted successfully.'
         })
-    } catch (error) {
-        return res.status(400).json({
+        return
+    } catch (error: any) {
+        res.status(400).json({
             status: 400,
             error: error.message
         })
+        return
     }
 }
 
 
-
-module.exports = {
-    getAllUser,
-    createUser,
-    loginUser,
-    deleteUser
-}

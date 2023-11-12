@@ -1,7 +1,8 @@
 // const { sendMessageToGroup } = require("../service/message.service");
 // const io = require('socket.io');
+// import { Request, Response } from 'express';
 
-// const sendMessages = async (req, res) => {
+// const sendMessages = async (req: Request, res: Response) : Promise<void> => {
 //     const { sender, team, content } = req.body;
 
 //     try {
@@ -19,6 +20,6 @@
 //     }
 // }
 
-// module.exports = {
+// export default = {
 //     sendMessages
 // }

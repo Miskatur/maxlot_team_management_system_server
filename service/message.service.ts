@@ -14,6 +14,6 @@
 //     }
 // };
 
-// module.exports = {
+// export default  {
 //     sendMessageToGroup
 // };
