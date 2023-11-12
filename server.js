@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const app = require('./app')
-
+const server = require('./app')
 dotenv.config();
 const port = process.env.PORT || 8080;
 
@@ -13,7 +13,7 @@ async function main() {
         await mongoose.connect(process.env.MONGO_URL);
         console.log("Database connection successful");
 
-        app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Mongoose listening on port ${port}`);
         });
     } catch {

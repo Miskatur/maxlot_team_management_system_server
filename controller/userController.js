@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const getAllUser = async (req, res) => {
     try {
-        const allUser = await User.find()
+        const allUser = await User.find().select("-password")
 
         res.status(200).json({
             status: 200,
@@ -31,7 +31,11 @@ const createUser = async (req, res) => {
         const newUser = new User({ username, password: hashedPassword });
 
         await newUser.save();
-        res.json({ message: 'User registered successfully' });
+        res.json({
+            status: 200,
+            message: 'User registered successfully',
+            user: newUser
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -45,7 +49,7 @@ const loginUser = async (req, res) => {
         const user = await User.findOne({ username: username });
 
         if (!user) {
-            return res.status(401).json({ error: 'Invalid username' });
+            return res.status(401).json({ status: 401, error: 'Invalid username' });
         }
 
         // Check password
@@ -60,6 +64,7 @@ const loginUser = async (req, res) => {
                 status: 200,
                 message: 'Logged in successfully.',
                 data: {
+                    _id: user._id,
                     username: user.username,
                     role: user.role,
                     token: token
@@ -75,8 +80,35 @@ const loginUser = async (req, res) => {
     }
 }
 
+const deleteUser = async (req, res) => {
+    const id = req.params.id
+    try {
+        const user = await User.findById(id)
+        if (user?.role === 'admin') {
+            return res.status(401).json({
+                status: 401,
+                message: 'You can not delete an admin'
+            })
+        }
+        const removedUser = await User.findByIdAndDelete(id)
+        return res.status(200).json({
+            status: 200,
+            userId: removedUser?._id,
+            message: 'User deleted successfully.'
+        })
+    } catch (error) {
+        return res.status(400).json({
+            status: 400,
+            error: error.message
+        })
+    }
+}
+
+
+
 module.exports = {
     getAllUser,
     createUser,
-    loginUser
+    loginUser,
+    deleteUser
 }

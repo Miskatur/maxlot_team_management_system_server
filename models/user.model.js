@@ -15,6 +15,9 @@ const userSchema = new mongoose.Schema(
             enum: ['admin', 'teamMember'],
             default: 'teamMember'
         },
+    },
+    {
+        timestamps: true
     }
 )
 

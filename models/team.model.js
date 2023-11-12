@@ -6,10 +6,10 @@ const teamSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        description: {
+        category: {
             type: String
         },
-        goals: {
+        description: {
             type: String
         },
         members: [{

@@ -4,8 +4,7 @@ const jwt = require("jsonwebtoken");
 const createJWT = async (user) => {
   const token = jwt.sign(
     {
-      id: user._id,
-      username: user.email,
+      username: user.username,
       role: user.role,
     },
     process.env.JWT_SECRET_KEY
@@ -30,7 +29,7 @@ const validateToken = (req, res, next) => {
         message: "Invalid or expired token. Access forbidden.",
       });
 
- 
+
     req.username = decoded.username;
     req.role = decoded.role;
     next();
